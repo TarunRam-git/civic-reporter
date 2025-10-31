@@ -32,3 +32,14 @@ export async function getDatabase(): Promise<Db> {
   const client = await clientPromise;
   return client.db('civic-reporter');
 }
+
+export async function setupGeospatialIndex(): Promise<void> {
+  try {
+    const db = await getDatabase();
+    // Create 2dsphere index for geospatial queries
+    await db.collection('mapObjects').createIndex({ 'location': '2dsphere' });
+    console.log('Geospatial index created');
+  } catch (error) {
+    console.error('Error creating geospatial index:', error);
+  }
+}

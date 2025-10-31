@@ -61,13 +61,17 @@ export interface IssueDocument {
 }
 
 export interface QRCodeDocument {
-  _id?: ObjectId;
   qrCodeId: string;
   objectLocation: string;
   objectType: ObjectType;
   createdBy: string;
   createdAt: Date;
+  location: {
+    type: 'Point';
+    coordinates: [number, number];
+  }
 }
+
 
 // Enums and Types
 export type IssueStatus = 'open' | 'processing' | 'closed';
@@ -136,4 +140,22 @@ export interface IssueCardProps {
   onStatusUpdate?: (issueId: string, status: IssueStatus) => void;
   onAddComment?: (issueId: string) => void;
   isStaff?: boolean;
+}
+
+export interface Location {
+  latitude: number;
+  longitude: number;
+}
+
+export interface MapObject {
+  _id?: ObjectId;
+  id: string;
+  objectType: ObjectType;
+  location: {
+    type: 'Point';
+    coordinates: [number, number]; // [longitude, latitude]
+  };
+  address: string;
+  createdBy: string;
+  createdAt: Date;
 }

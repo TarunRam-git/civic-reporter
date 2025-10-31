@@ -2,10 +2,19 @@ import clientPromise from '@/app/lib/mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 import { GenerateQRRequest, GenerateQRResponse, QRCodeDocument } from '@/types';
 
+// Update your GenerateQRRequest and QRCodeDocument types to include latitude/longitude and location!
+
 export async function POST(request: NextRequest): Promise<NextResponse<GenerateQRResponse | { error: string }>> {
   try {
-    const body: GenerateQRRequest = await request.json();
-    const { objectLocation, objectType, createdBy } = body;
+    const body = await request.json();
+    const { objectLocation, objectType, createdBy, latitude, longitude } = body;
+
+    if (latitude == null || longitude == null) {
+      return NextResponse.json(
+        { error: "Missing latitude or longitude" },
+        { status: 400 }
+      );
+    }
 
     const client = await clientPromise;
     const db = client.db('civic-reporter');
@@ -17,7 +26,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateQ
       objectLocation,
       objectType,
       createdBy,
-      createdAt: new Date()
+      createdAt: new Date(),
+      location: {
+        type: 'Point',
+        coordinates: [longitude, latitude]
+      }
     };
 
     await db.collection<QRCodeDocument>('qrCodes').insertOne(newQRCode);

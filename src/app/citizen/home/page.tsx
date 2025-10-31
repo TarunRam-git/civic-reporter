@@ -50,7 +50,11 @@ export default function CitizenHome() {
             className="bg-blue-500 text-white p-6 rounded-lg text-center hover:bg-blue-600 transition"
           >
             <div className="text-xl font-semibold">Scan QR Code</div>
+
             <p className="text-sm mt-2">Report a new issue</p>
+            // Add this button in the action buttons section:
+
+
           </Link>
 
           <Link
@@ -60,7 +64,14 @@ export default function CitizenHome() {
             <div className="text-xl font-semibold">Track Your Issues</div>
             <p className="text-sm mt-2">View your reported issues</p>
           </Link>
-
+          
+<Link
+  href="/citizen/map"
+  className="bg-purple-500 text-white p-6 rounded-lg text-center hover:bg-purple-600 transition"
+>
+  <div className="text-xl font-semibold">View Map</div>
+  <p className="text-sm mt-2">See nearby objects</p>
+</Link>
           <button
             onClick={() => router.push('/api/auth/signout')}
             className="bg-red-500 text-white p-6 rounded-lg text-center hover:bg-red-600 transition"

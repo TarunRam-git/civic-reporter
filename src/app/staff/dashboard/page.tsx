@@ -4,7 +4,11 @@ import { useState, useEffect, FormEvent, ChangeEvent } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import QRCode from 'qrcode';
+import dynamic from 'next/dynamic';
 import { IssueDocument, IssueStatus, ObjectType, GenerateQRResponse, QRCodeData } from '@/types';
+
+// Lazy-load MapPicker to avoid SSR bugs
+const MapPicker = dynamic(() => import('@/components/Mappicker'), { ssr: false });
 
 interface QRFormData {
   objectLocation: string;
@@ -22,6 +26,7 @@ export default function StaffDashboard() {
   });
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const [selectedCoords, setSelectedCoords] = useState<{ lat: number, lng: number } | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -49,30 +54,31 @@ export default function StaffDashboard() {
 
   const handleGenerateQR = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+    if (!selectedCoords) {
+      alert('Please select a location on the map');
+      return;
+    }
     setLoading(true);
-
     try {
       const res = await fetch('/api/qr/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...qrForm,
+          latitude: selectedCoords.lat,
+          longitude: selectedCoords.lng,
           createdBy: session?.user?.staffId
         })
       });
-
       const data: GenerateQRResponse = await res.json();
-
       if (res.ok) {
         const qrData: QRCodeData = {
           qrCodeId: data.qrCodeId,
           objectLocation: qrForm.objectLocation,
           objectType: qrForm.objectType as ObjectType
         };
-
         const qrUrl = await QRCode.toDataURL(JSON.stringify(qrData));
         setQrCodeUrl(qrUrl);
-        
         alert(`QR Code generated! ID: ${data.qrCodeId}`);
       } else {
         alert('Error generating QR code');
@@ -90,7 +96,6 @@ export default function StaffDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ issueId, status: newStatus })
       });
-
       if (res.ok) {
         fetchAllIssues();
         alert('Status updated successfully');
@@ -103,7 +108,6 @@ export default function StaffDashboard() {
   const handleAddComment = async (issueId: string): Promise<void> => {
     const comment = prompt('Enter your comment:');
     if (!comment) return;
-
     try {
       const res = await fetch('/api/issues/add-comment', {
         method: 'POST',
@@ -117,7 +121,6 @@ export default function StaffDashboard() {
           }
         })
       });
-
       if (res.ok) {
         fetchAllIssues();
         alert('Comment added successfully');
@@ -133,6 +136,8 @@ export default function StaffDashboard() {
     setQrForm({ ...qrForm, [e.target.name]: e.target.value });
   };
 
+  const initialMapCenter = { lat: 12.93081, lng: 77.58326 }; // Example default
+
   if (status === 'loading') {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
@@ -145,32 +150,22 @@ export default function StaffDashboard() {
           <button
             onClick={() => router.push('/api/auth/signout')}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-          >
-            Sign Out
-          </button>
+          >Sign Out</button>
         </div>
 
         <div className="flex space-x-4 mb-6">
           <button
             onClick={() => setActiveTab('issues')}
             className={`px-6 py-3 rounded-lg font-medium ${
-              activeTab === 'issues'
-                ? 'bg-blue-500 text-white'
-                : 'bg-white text-gray-700'
+              activeTab === 'issues' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'
             }`}
-          >
-            Manage Issues
-          </button>
+          >Manage Issues</button>
           <button
             onClick={() => setActiveTab('qr')}
             className={`px-6 py-3 rounded-lg font-medium ${
-              activeTab === 'qr'
-                ? 'bg-blue-500 text-white'
-                : 'bg-white text-gray-700'
+              activeTab === 'qr' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'
             }`}
-          >
-            Generate QR Codes
-          </button>
+          >Generate QR Codes</button>
         </div>
 
         {activeTab === 'issues' && (
@@ -222,9 +217,7 @@ export default function StaffDashboard() {
                   <button
                     onClick={() => handleAddComment(issue._id!.toString())}
                     className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                  >
-                    Add Comment
-                  </button>
+                  >Add Comment</button>
 
                   {issue.comments && issue.comments.length > 0 && (
                     <div className="mt-4 border-t pt-4">
@@ -248,10 +241,27 @@ export default function StaffDashboard() {
         {activeTab === 'qr' && (
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-2xl font-semibold mb-6">Generate New QR Code</h2>
+            <div className="mb-6">
+              <label className="block mb-2 font-semibold">
+                Pin Location on Map&nbsp;
+                <span className="text-xs text-gray-500">(Click to set location - required)</span>
+              </label>
+              <MapPicker
+                onPick={(lat, lng) => setSelectedCoords({ lat, lng })}
+                initialCenter={initialMapCenter}
+              />
+              <div className="mt-2 text-gray-700 text-sm">
+                Selected Coordinates:
+                {selectedCoords
+                  ? <span className="font-mono ml-2">{selectedCoords.lat.toFixed(6)}, {selectedCoords.lng.toFixed(6)}</span>
+                  : <span className="ml-2 text-gray-400">Not set</span>
+                }
+              </div>
+            </div>
 
             <form onSubmit={handleGenerateQR} className="space-y-4">
               <div>
-                <label className="block mb-2 font-medium">Object Location</label>
+                <label className="block mb-2 font-medium">Object Location (Description)</label>
                 <input
                   type="text"
                   name="objectLocation"
@@ -262,7 +272,6 @@ export default function StaffDashboard() {
                   required
                 />
               </div>
-
               <div>
                 <label className="block mb-2 font-medium">Object Type</label>
                 <select
@@ -281,10 +290,9 @@ export default function StaffDashboard() {
                   <option value="other">Other</option>
                 </select>
               </div>
-
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !selectedCoords}
                 className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
               >
                 {loading ? 'Generating...' : 'Generate QR Code'}
@@ -299,13 +307,12 @@ export default function StaffDashboard() {
                   href={qrCodeUrl}
                   download="qr-code.png"
                   className="inline-block bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600"
-                >
-                  Download QR Code
-                </a>
+                >Download QR Code</a>
               </div>
             )}
           </div>
         )}
+
       </div>
     </div>
   );
