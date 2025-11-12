@@ -76,31 +76,31 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h1 className="text-2xl font-bold mb-6 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="bg-blue-300 p-8 rounded-lg shadow-md w-96">
+        <h1 className="text-2xl font-bold text-black mb-6 text-center">
           Civic Reporter
         </h1>
 
         <div className="flex mb-4">
           <button
             onClick={() => setIsSignUp(false)}
-            className={`flex-1 py-2 ${!isSignUp ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`flex-1 py-2 ${!isSignUp ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}
           >
             Sign In
           </button>
           <button
             onClick={() => setIsSignUp(true)}
-            className={`flex-1 py-2 ${isSignUp ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`flex-1 py-2 ${isSignUp ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}
           >
             Sign Up
           </button>
         </div>
 
         <div className="mb-4">
-          <label className="block mb-2 text-sm font-medium">Role:</label>
+          <label className="block mb-2 text-sm font-medium text-black">Role:</label>
           <div className="flex space-x-4">
-            <label className="flex items-center">
+            <label className="flex items-center text-black">
               <input
                 type="radio"
                 value="citizen"
@@ -110,7 +110,7 @@ export default function SignInPage() {
               />
               Citizen
             </label>
-            <label className="flex items-center">
+            <label className="flex items-center text-black">
               <input
                 type="radio"
                 value="staff"
@@ -125,7 +125,7 @@ export default function SignInPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium">
+            <label className="block mb-2 text-sm font-medium text-black">
               Aadhar Number
             </label>
             <input
@@ -133,14 +133,14 @@ export default function SignInPage() {
               name="aadharNumber"
               value={formData.aadharNumber}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border rounded"
+              className="w-full px-3 py-2 border rounded "
               required
             />
           </div>
 
           {role === 'staff' && (
             <div className="mb-4">
-              <label className="block mb-2 text-sm font-medium">
+              <label className="block mb-2 text-sm font-medium text-black">
                 Staff ID
               </label>
               <input
@@ -155,7 +155,7 @@ export default function SignInPage() {
           )}
 
           <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium">
+            <label className="block mb-2 text-sm font-medium text-black">
               Password
             </label>
             <input

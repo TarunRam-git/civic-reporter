@@ -3,7 +3,7 @@
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { useState } from 'react';
 
-function MapClickHandler({ onPick, setMarker }) {
+function MapClickHandler({ onPick, setMarker }: { onPick: (lat: number, lng: number) => void; setMarker: (latlng: { lat: number; lng: number }) => void }) {
   useMapEvents({
     click(e) {
       setMarker(e.latlng);
@@ -13,7 +13,7 @@ function MapClickHandler({ onPick, setMarker }) {
   return null;
 }
 
-export default function MapPicker({ onPick, initialCenter }) {
+export default function MapPicker({ onPick, initialCenter }: { onPick: (lat: number, lng: number) => void; initialCenter: { lat: number; lng: number } }) {
   const [marker, setMarker] = useState(initialCenter);
 
   return (

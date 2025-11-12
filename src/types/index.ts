@@ -51,7 +51,8 @@ export interface IssueDocument {
   title: string;
   description: string;
   imageUrl?: string;
-  qrCodeId: string;
+  imageData?: string;
+  qrCodeId?: string;
   objectLocation: string;
   objectType: ObjectType;
   status: IssueStatus;
@@ -60,16 +61,10 @@ export interface IssueDocument {
   updatedAt: Date;
 }
 
-export interface QRCodeDocument {
+// Legacy: QRCodeDocument is now stored as CivicObject with qrCodeId field
+// Kept for backward compatibility in API responses
+export interface QRCodeDocument extends CivicObject {
   qrCodeId: string;
-  objectLocation: string;
-  objectType: ObjectType;
-  createdBy: string;
-  createdAt: Date;
-  location: {
-    type: 'Point';
-    coordinates: [number, number];
-  }
 }
 
 
@@ -95,7 +90,8 @@ export interface CreateIssueRequest {
   title: string;
   description: string;
   imageUrl?: string;
-  qrCodeId: string;
+  imageData?: string;
+  qrCodeId?: string;
   objectLocation: string;
   objectType: ObjectType;
   aadharNumber: string;
@@ -111,6 +107,8 @@ export interface GenerateQRRequest {
   objectLocation: string;
   objectType: ObjectType;
   createdBy: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface GenerateQRResponse {
@@ -132,6 +130,8 @@ export interface QRCodeData {
   qrCodeId: string;
   objectLocation: string;
   objectType: ObjectType;
+  latitude?: number;
+  longitude?: number;
 }
 
 // Component Props Types
@@ -147,15 +147,21 @@ export interface Location {
   longitude: number;
 }
 
-export interface MapObject {
+// Unified Civic Object - combines mapObjects and qrCodes functionality
+export interface CivicObject {
   _id?: ObjectId;
-  id: string;
+  id: string; // OBJ-{timestamp}-{random} or QR-{timestamp}-{random}
   objectType: ObjectType;
   location: {
     type: 'Point';
     coordinates: [number, number]; // [longitude, latitude]
   };
-  address: string;
+  address: string; // Required: descriptive location name
   createdBy: string;
   createdAt: Date;
+  // For QR codes specifically
+  qrCodeId?: string; // QR-{timestamp}-{random} - included when created as QR
 }
+
+// Legacy: MapObject is now an alias for CivicObject
+export type MapObject = CivicObject;

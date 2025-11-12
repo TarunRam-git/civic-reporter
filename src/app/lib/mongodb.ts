@@ -33,13 +33,23 @@ export async function getDatabase(): Promise<Db> {
   return client.db('civic-reporter');
 }
 
+let indexCreated = false;
+
 export async function setupGeospatialIndex(): Promise<void> {
+  if (indexCreated) return;
+  
   try {
     const db = await getDatabase();
-    // Create 2dsphere index for geospatial queries
-    await db.collection('mapObjects').createIndex({ 'location': '2dsphere' });
-    console.log('Geospatial index created');
+    // Create 2dsphere index for geospatial queries on unified civicObjects collection
+    await db.collection('civicObjects').createIndex({ 'location': '2dsphere' });
+    console.log('✓ Geospatial 2dsphere index created on civicObjects.location');
+    indexCreated = true;
   } catch (error) {
     console.error('Error creating geospatial index:', error);
   }
+}
+
+// Call this on module load to ensure index exists
+if (typeof window === 'undefined') {
+  setupGeospatialIndex().catch(console.error);
 }

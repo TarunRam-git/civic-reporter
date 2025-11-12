@@ -40,7 +40,7 @@ export default function CitizenHome() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen bg-white-100 p-8">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Civic Reporter - Citizen Portal</h1>
 
@@ -52,8 +52,7 @@ export default function CitizenHome() {
             <div className="text-xl font-semibold">Scan QR Code</div>
 
             <p className="text-sm mt-2">Report a new issue</p>
-            // Add this button in the action buttons section:
-
+            
 
           </Link>
 
@@ -80,11 +79,11 @@ export default function CitizenHome() {
           </button>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-semibold mb-4">Active Issues in Your Area</h2>
+        <div className="bg-blue-500 rounded-lg shadow p-6">
+          <h2 className="text-2xl font-extrabold mb-4 text-white ">Active Issues in Your Area</h2>
           
           {activeIssues.length === 0 ? (
-            <p className="text-gray-500">No active issues at the moment</p>
+            <p className=" text-white">No active issues at the moment</p>
           ) : (
             <div className="space-y-4">
               {activeIssues.map((issue) => (

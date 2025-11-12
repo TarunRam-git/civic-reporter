@@ -59,7 +59,7 @@ export default function CitizenMap({
       {/* Visual search radius */}
       <Circle
         center={[userLocation.latitude, userLocation.longitude]}
-        radius={5000}
+        radius={1000}
         pathOptions={{ color: 'blue', fillOpacity: 0.1 }}
       />
       {/* Municipal tagged objects */}

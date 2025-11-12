@@ -72,9 +72,12 @@ export default function CitizenMapPage() {
   };
 
   const handleObjectClick = (object: MapObject): void => {
-    router.push(
-      `/citizen/report-issue?objectId=${object.id}&lat=${object.location.coordinates[1]}&lng=${object.location.coordinates[0]}`
-    );
+    // Address is now guaranteed to be populated, use it directly
+    const locationName = object.address;
+    
+    const url = `/citizen/report-issue?lat=${object.location.coordinates[1]}&lng=${object.location.coordinates[0]}&objectType=${object.objectType}&locationName=${encodeURIComponent(locationName)}&objectId=${object.id || object._id}`;
+    console.log('Navigating to report issue:', url);
+    router.push(url);
   };
 
   if (status === 'loading' || !session) {
@@ -84,12 +87,12 @@ export default function CitizenMapPage() {
   return (
     <div className="w-full h-screen flex flex-col">
       {/* Header */}
-      <div className="bg-blue-500 text-white p-4 shadow-lg">
+      <div className="bg-blue-900 text-white p-4 shadow-lg">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold">Nearby Objects</h1>
           <button
             onClick={() => router.push('/citizen/home')}
-            className="bg-white text-blue-500 px-4 py-2 rounded hover:bg-gray-100"
+            className="bg-black text-white px-4 py-2 rounded hover:bg-blue-950"
           >
             Back to Home
           </button>
@@ -97,7 +100,7 @@ export default function CitizenMapPage() {
       </div>
 
       {/* GPS Control */}
-      <div className="bg-gray-100 p-4 border-b">
+      <div className="bg-black-100 p-4 border-b">
         <div className="max-w-6xl mx-auto flex items-center space-x-4">
           {!gpsEnabled ? (
             <button
@@ -136,9 +139,9 @@ export default function CitizenMapPage() {
           />
         )}
         {!gpsEnabled && (
-          <div className="w-full h-full flex items-center justify-center bg-gray-200">
+          <div className="w-full h-full flex items-center justify-center bg-black-200">
             <div className="text-center">
-              <p className="text-xl text-gray-700 mb-4">Enable GPS to see nearby objects on the map</p>
+              <p className="text-xl text-white-700 mb-4">Enable GPS to see nearby objects on the map</p>
             </div>
           </div>
         )}

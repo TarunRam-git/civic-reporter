@@ -1,7 +1,7 @@
 import clientPromise from '@/app/lib/mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 import { ObjectId } from 'mongodb';
-import { AddCommentRequest, IssueDocument, CommentDocument } from '@/types';
+import { AddCommentRequest, IssueDocument } from '@/types';
 
 export async function POST(request: NextRequest): Promise<NextResponse<{ success: boolean } | { error: string }>> {
   try {
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<{ success
     await db.collection<IssueDocument>('issues').updateOne(
       { _id: new ObjectId(issueId) },
       {
-        $push: { comments: comment as any },
+        $push: { comments: comment },
         $set: { updatedAt: new Date() }
       }
     );

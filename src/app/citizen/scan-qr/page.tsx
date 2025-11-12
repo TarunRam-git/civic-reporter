@@ -21,8 +21,29 @@ export default function ScanQRPage() {
         const parsedData: QRCodeData = JSON.parse(qrData);
         setScannedData(parsedData);
         
-        router.push(`/citizen/report-issue?qrData=${encodeURIComponent(qrData)}`);
+        // Pass the same parameters as map flow does
+        // This makes QR flow identical to map flow in report-issue page
+        const params = new URLSearchParams();
+        
+        // Only add lat/lng if they actually exist and are valid numbers
+        if (parsedData.latitude !== undefined && parsedData.latitude !== null && !isNaN(parsedData.latitude)) {
+          params.append('lat', String(parsedData.latitude));
+        }
+        if (parsedData.longitude !== undefined && parsedData.longitude !== null && !isNaN(parsedData.longitude)) {
+          params.append('lng', String(parsedData.longitude));
+        }
+        
+        // Always add these required fields
+        params.append('objectType', parsedData.objectType);
+        params.append('locationName', parsedData.objectLocation);
+        params.append('qrCodeId', parsedData.qrCodeId);
+        
+        console.log('QR Scan - Parsed Data:', parsedData);
+        console.log('QR Scan - URL Params:', params.toString());
+        
+        router.push(`/citizen/report-issue?${params.toString()}`);
       } catch (error) {
+        console.error('QR Parse Error:', error);
         alert('Invalid QR code');
         setPause(false);
       }
@@ -34,7 +55,7 @@ export default function ScanQRPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen bg-black-100 p-8">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Scan QR Code</h1>
         
@@ -64,3 +85,6 @@ export default function ScanQRPage() {
     </div>
   );
 }
+
+
+// <div>  text {obj.views} x</div>
